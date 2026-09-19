@@ -23,27 +23,36 @@ Abaixo está o `Dockerfile` criado para a aplicação, com a explicação linha 
 ## 2. Evidências de Execução (Etapas 3 a 6)
 
 ### Etapa 3: Build da Imagem
-*(Cole aqui o print do tamanho da imagem `docker image ls` e da lista de camadas `docker history notas-api:1.0`)*
+![Build da Imagem](./print-etapa3.png)
 
 ### Etapa 4 e 5: Prova de Persistência
 Criamos o volume `notas-dados`, subimos o contêiner inicial e inserimos as notas via POST. Após confirmar o funcionamento, o contêiner foi **destruído completamente** (`docker rm notas`).
+
+![Destruição do contêiner](./Captura%20de%20tela%20de%202026-09-18%2021-08-07.png)
+
 Ao instanciar um novo contêiner mapeado para o mesmo volume, verificamos que os dados continuavam intactos:
-*(Cole aqui o print do comando `curl http://localhost:9000/notas` retornando o JSON completo no contêiner notas2)*
+
+![Recriando o contêiner notas2](./Captura%20de%20tela%20de%202026-09-18%2021-09-21.png)
+![Prova de Persistência](./Captura%20de%20tela%20de%202026-09-18%2021-09-47.png)
 
 ### Etapa 6: O Contraexemplo (Efemeridade)
 Para demonstrar o comportamento padrão de contêineres, instanciamos a aplicação sem a flag `-v`. Após inserir dados e excluir o contêiner, um novo contêiner foi criado. 
 Ao realizar o GET, ficou comprovado que **as anotações foram perdidas** e o sistema retornou ao estado original da imagem. 
 
+![Contraexemplo de Efemeridade](./Captura%20de%20tela%20de%202026-09-18%2021-10-52.png)
+
 **Por que isso acontece?**
 O sistema de arquivos de um contêiner é efêmero. A camada de leitura/escrita acoplada ao contêiner durante a execução é descartada automaticamente pelo Docker Engine quando o contêiner é removido. Sem um volume (que reside fora dessa camada e é gerenciado diretamente no *host*), a persistência é impossível.
 
 ---
-README
+
 ## 3. Inspeção (Etapa 7)
 
-**Onde, no host, o Docker armazena fisicamente o volume `notas-dados`?**README
+**Onde, no host, o Docker armazena fisicamente o volume `notas-dados`?**
 Através do comando `docker volume inspect`, identificamos no campo `Mountpoint` que o Docker gerencia fisicamente este volume no seguinte diretório do Host: 
 `/var/lib/docker/volumes/notas-dados/_data`
+
+![Inspecionando o Volume](./Captura%20de%20tela%20de%202026-09-18%2021-09-02.png)
 
 **Qual é o conteúdo do diretório `/app/data` dentro do contêiner?**
 Executando `docker exec notas2 ls -la /app/data`, verificamos a existência do arquivo de persistência:
