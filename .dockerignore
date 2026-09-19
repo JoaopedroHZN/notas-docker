@@ -1,0 +1,12 @@
+# Ignora os arquivos cacheados do python
+
+__pycache__/
+*.pyc
+
+# Ignora o ambiente virtual
+venv/
+
+# Ignora o diretorio git
+.git/
+
+# Ignora a pasta de dados local para nao levar o banco de teste para a img
